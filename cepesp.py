@@ -1,10 +1,10 @@
 import pandas as pd
 import urllib2
-import StringIO
-import gzip
 import hashlib
+import os
 
 baseURL = "http://cepesp.io/api/consulta/"
+baseDir = os.path.dirname(__file__)
 
 
 def add_filters(request,
@@ -43,7 +43,7 @@ def votos(cargo=1,
     filename = hashlib.md5(request).hexdigest() + ".gz"
     response = urllib2.urlopen(baseURL + request)
     save_cache(response, filename)
-    return pd.read_csv("cache/" + filename, sep=",", dtype=str)
+    return pd.read_csv(os.path.join(baseDir, "cache/" + filename), sep=",", dtype=str)
 
 
 def candidatos(cargo=1,
@@ -61,7 +61,7 @@ def candidatos(cargo=1,
     filename = hashlib.md5(request).hexdigest() + ".gz"
     response = urllib2.urlopen(baseURL + request)
     save_cache(response, filename)
-    return pd.read_csv("cache/" + filename, sep=",", dtype=str)
+    return pd.read_csv(os.path.join(baseDir, "cache/" + filename), sep=",", dtype=str)
 
 
 def legendas(cargo=1,
@@ -79,7 +79,7 @@ def legendas(cargo=1,
     request = add_filters(request, estado, numero_candidato, numero_partido, codigo_municipio)
     response = urllib2.urlopen(baseURL + request)
     save_cache(response, filename)
-    return pd.read_csv("cache/" + filename, sep=",", dtype=str)
+    return pd.read_csv(os.path.join(baseDir, "cache/" + filename), sep=",", dtype=str)
 
 
 def votos_x_candidatos(cargo=1, ano=2014, agregacao_politica=1, agregacao_regional=2, estado=None,
@@ -110,25 +110,14 @@ def candidato_x_legendas(cargo=1, ano=2014, agregacao_politica=1, agregacao_regi
 
 
 def save_cache(response, filename):
-    with open("cache/" + filename, 'w') as outfile:
+    file_path = os.path.join(baseDir, "cache/" + filename)
+    with open(file_path, 'wb') as outfile:
         outfile.write(response.read())
 
 
 def add_filter(request, column, value, index):
     filter = "&columns[{}][name]={}&columns[{}][search][value]={}".format(index, column, index, value)
     return request + filter
-
-
-def open_gzip(response, filename):
-    compressedFile = StringIO.StringIO()
-    compressedFile.write(response.read())
-    compressedFile.seek(0)
-
-    decompressedFile = gzip.GzipFile(fileobj=compressedFile, mode='rb')
-
-    with open(filename, 'w') as outfile:
-        outfile.write(decompressedFile.read())
-    return decompressedFile.read()
 
 
 class CARGO():
