@@ -2,4 +2,4 @@ __pycache__/
 *.pyc
 *$py.class
 .idea/
-cache/*
+cache/*.gz
