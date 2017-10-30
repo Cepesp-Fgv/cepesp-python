@@ -6,7 +6,7 @@ import hashlib
 from enum import Enum
 
 
-baseURL = "http://cepesp.io/api/consulta/";
+baseURL = "http://cepesp.io/api/consulta/"
 
 def add_filters(request,
                 estado=None,
