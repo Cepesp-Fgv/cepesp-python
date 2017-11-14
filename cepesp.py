@@ -7,35 +7,32 @@ baseURL = "http://cepesp.io/api/consulta/"
 baseDir = os.path.dirname(__file__)
 
 
-def add_filters(request,
-                estado=None,
-                numero_candidato=None,
-                numero_partido=None,
-                codigo_municipio=None):
+def add_filters(request, estado=None, numero_candidato=None, numero_partido=None, codigo_municipio=None):
     index = 0
-    if (estado != None):
-        request = add_filter(request, "UF", estado, index)
-        index += 1
-    if (numero_candidato != None):
+    if estado is not None:
+        request = add_uf_filter(request, estado)
+    if numero_candidato is not None:
         request = add_filter(request, "NUMERO_CANDIDATO", numero_candidato, index)
         index += 1
-    if (numero_partido != None):
+    if numero_partido is not None:
         request = add_filter(request, "NUMERO_PARTIDO", numero_partido, index)
         index += 1
-    if (codigo_municipio != None):
+    if codigo_municipio is not None:
         request = add_filter(request, "CODIGO_MUNICIPIO", codigo_municipio, index)
         index += 1
     return request
 
 
-def votos(cargo=1,
-          ano=2014,
-          agregacao_politica=1,
-          agregacao_regional=0,
-          estado=None,
-          numero_candidato=None,
-          numero_partido=None,
-          codigo_municipio=None):
+def add_filter(request, column, value, index):
+    return request + "&columns[{}][name]={}&columns[{}][search][value]={}".format(index, column, index, value)
+
+
+def add_uf_filter(request, estado):
+    return request + "&uf_filter={}".format(estado)
+
+
+def votos(cargo=1, ano=2014, agregacao_politica=1, agregacao_regional=0, estado=None, numero_candidato=None,
+          numero_partido=None, codigo_municipio=None):
     request = "votos?cargo={}&ano={}&agregacao_politica={}&agregacao_regional={}&format=gzip".format(cargo, ano,
                                                                                                      agregacao_politica,
                                                                                                      agregacao_regional)
@@ -46,14 +43,8 @@ def votos(cargo=1,
     return pd.read_csv(os.path.join(baseDir, "cache/" + filename), sep=",", dtype=str)
 
 
-def candidatos(cargo=1,
-               ano=2014,
-               agregacao_politica=1,
-               agregacao_regional=2,
-               estado=None,
-               numero_candidato=None,
-               numero_partido=None,
-               codigo_municipio=None):
+def candidatos(cargo=1, ano=2014, agregacao_politica=1, agregacao_regional=2, estado=None, numero_candidato=None,
+               numero_partido=None, codigo_municipio=None):
     request = "candidatos?cargo={}&ano={}&agregacao_politica={}&agregacao_regional={}&format=gzip".format(cargo, ano,
                                                                                                           agregacao_politica,
                                                                                                           agregacao_regional)
@@ -64,14 +55,8 @@ def candidatos(cargo=1,
     return pd.read_csv(os.path.join(baseDir, "cache/" + filename), sep=",", dtype=str)
 
 
-def legendas(cargo=1,
-             ano=2014,
-             agregacao_politica=1,
-             agregacao_regional=2,
-             estado=None,
-             numero_candidato=None,
-             numero_partido=None,
-             codigo_municipio=None):
+def legendas(cargo=1, ano=2014, agregacao_politica=1, agregacao_regional=2, estado=None, numero_candidato=None,
+             numero_partido=None, codigo_municipio=None):
     request = "legendas?cargo={}&ano={}&agregacao_politica={}&agregacao_regional={}&format=gzip".format(cargo, ano,
                                                                                                         agregacao_politica,
                                                                                                         agregacao_regional)
@@ -115,12 +100,7 @@ def save_cache(response, filename):
         outfile.write(response.read())
 
 
-def add_filter(request, column, value, index):
-    filter = "&columns[{}][name]={}&columns[{}][search][value]={}".format(index, column, index, value)
-    return request + filter
-
-
-class CARGO():
+class CARGO:
     PRESIDENTE = 1
     SENADOR = 3
     GOVERNADOR = 5
@@ -131,7 +111,7 @@ class CARGO():
     DEPUTADO_DISTRITAL = 8
 
 
-class AGR_REGIONAL():
+class AGR_REGIONAL:
     BRASIL = 0
     UF = 2
     MUNICIPIO = 6
@@ -142,7 +122,7 @@ class AGR_REGIONAL():
     MICRO = 5
 
 
-class AGR_POLITICA():
+class AGR_POLITICA:
     CANDIDATO = 1
     PARTIDO = 2
     COLIGACAO = 3
