@@ -102,8 +102,8 @@ def save_cache(response, filename):
 
 class CARGO:
     PRESIDENTE = 1
-    SENADOR = 3
-    GOVERNADOR = 5
+    SENADOR = 5
+    GOVERNADOR = 3
     VEREADOR = 13
     PREFEITO = 11
     DEPUTADO_FEDERAL = 6
