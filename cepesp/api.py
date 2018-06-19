@@ -4,7 +4,7 @@ import pandas as pd
 
 from columns import VOTOS, CANDIDATOS, LEGENDAS
 
-BASE_URL = "http://localhost:5000/api/consulta/"
+BASE_URL = "http://cepesp.io/api/consulta/"
 
 
 def build_filters(filters):
