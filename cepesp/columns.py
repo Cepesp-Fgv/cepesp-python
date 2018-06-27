@@ -67,7 +67,6 @@ VOTOS = {
     # BR
     0: [
         "ANO_ELEICAO",
-        "SIGLA_UE",
         "NUM_TURNO",
         "DESCRICAO_ELEICAO",
         "CODIGO_CARGO",
@@ -81,7 +80,6 @@ VOTOS = {
         "ANO_ELEICAO",
         "CODIGO_MACRO",
         "NOME_MACRO",
-        "SIGLA_UE",
         "NUM_TURNO",
         "DESCRICAO_ELEICAO",
         "CODIGO_CARGO",
