@@ -4,7 +4,7 @@ import pandas as pd
 
 from columns import VOTOS, CANDIDATOS, LEGENDAS
 
-BASE_URL = "http://localhost:5000/api/consulta/"
+BASE_URL = "http://cepesp.io/api/consulta/"
 
 
 def build_filters(filters):
@@ -14,10 +14,8 @@ def build_filters(filters):
         uf = filters.pop('UF')
         q += "&uf_filter={}".format(uf)
 
-    i = 0
     for k, v in filters.items():
-        q += "&columns[{}][name]={}&columns[{}][search][value]={}".format(i, k, i, v)
-        i += 1
+        q += "&filters[{}]={}".format(k, v)
 
     return q
 
@@ -25,7 +23,7 @@ def build_filters(filters):
 def build_columns(columns):
     q = ""
     for column in columns:
-        q += "&selected_columns[]={}".format(column)
+        q += "&c[]={}".format(column)
 
     return q
 
@@ -38,7 +36,10 @@ def query(request, filters, columns):
         request += build_columns(columns)
 
     response = urllib.urlopen(BASE_URL + request)
-    return pd.read_csv(response, sep=",", dtype=str)
+    df = pd.read_csv(response, sep=",", dtype=str)
+    df.columns = map(str.upper, df.columns)
+
+    return df
 
 
 def votos(ano, cargo, agregacao_regional, estado=None, numero_candidato=None, filtros=None,
