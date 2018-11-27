@@ -4,7 +4,7 @@ import pandas as pd
 
 from columns import VOTOS, CANDIDATOS, LEGENDAS
 
-BASE_URL = "http://cepesp.io/api/consulta/"
+BASE_URL = "http://test.cepesp.io/api/consulta/"
 
 
 def build_filters(filters):
@@ -41,6 +41,19 @@ def query(request, filters, columns):
 
     return df
 
+def tse(ano, cargo, agregacao_regional, agregacao_politica, estado=None, numero_candidato=None, filtros=None,
+          colunas=None):
+    request = "tse?cargo={}&ano={}&agregacao_regional={}&agregacao_politica={}&format=csv".format(cargo, ano, agregacao_regional, agregacao_politica)
+    if filtros is None:
+        filtros = dict()
+
+    if estado is not None:
+        filtros['UF'] = estado
+
+    if numero_candidato is not None:
+        filtros['NUMERO_CANDIDATO'] = numero_candidato
+
+    return query(request, filtros, colunas)
 
 def votos(ano, cargo, agregacao_regional, estado=None, numero_candidato=None, filtros=None,
           colunas=None):
@@ -65,54 +78,6 @@ def candidatos(ano, cargo, filtros=None, colunas=None):
 def legendas(ano, cargo, filtros=None, colunas=None):
     request = "legendas?cargo={}&ano={}&format=csv".format(cargo, ano)
     return query(request, filtros, colunas)
-
-
-def resolve_conflicts(df, prefer='_x', drop='_y'):
-    columns = df.columns.values.tolist()
-    conflicts = [c for c in columns if c.endswith(prefer)]
-    drops = [c for c in columns if c.endswith(drop)]
-    renames = dict()
-    for c in conflicts:
-        renames[c] = c.replace(prefer, '')
-
-    return df.rename(columns=renames).drop(drops, axis=1)
-
-
-def votos_x_candidatos(ano, cargo, agregacao_regional, estado=None):
-    vot = votos(ano, cargo, agregacao_regional, estado, colunas=VOTOS[agregacao_regional]) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    cand = candidatos(ano, cargo, colunas=CANDIDATOS) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    merged = vot.merge(cand, how="left", left_index=True, right_index=True).reset_index()
-
-    return resolve_conflicts(merged)
-
-
-def votos_x_legendas(ano, cargo, agregacao_regional, estado=None):
-    vot = votos(ano, cargo, agregacao_regional, estado, colunas=VOTOS[agregacao_regional]) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    leg = legendas(ano, cargo, colunas=LEGENDAS) \
-        .rename(columns={"NUMERO_PARTIDO": "NUMERO_CANDIDATO"}) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    merged = vot.merge(leg, how="left", left_index=True, right_index=True).reset_index()
-
-    return resolve_conflicts(merged)
-
-
-def candidato_x_legendas(ano, cargo):
-    leg = legendas(ano, cargo, colunas=LEGENDAS) \
-        .set_index(["NUMERO_PARTIDO", "SIGLA_UE", "ANO_ELEICAO"])
-
-    cand = candidatos(ano, cargo, colunas=CANDIDATOS) \
-        .set_index(["NUMERO_PARTIDO", "SIGLA_UE", "ANO_ELEICAO"])
-
-    merged = cand.merge(leg, how="left", left_index=True, right_index=True).reset_index()
-
-    return resolve_conflicts(merged)
 
 
 def get_elections(cargo):
