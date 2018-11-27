@@ -1,150 +1,74 @@
-import urllib as urllib
+from columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE
+from client import CepespClient
 
-import pandas as pd
-
-from columns import VOTOS, CANDIDATOS, LEGENDAS
-
-BASE_URL = "http://cepesp.io/api/consulta/"
+client = CepespClient("http://cepesp.io")
 
 
-def build_filters(filters):
-    q = ""
+def get_votes(**args):
+    if 'columns' in args and args['columns'] == '*':
+        args['columns'] = VOTOS[args['regional_aggregation']]
 
-    if 'UF' in filters.keys():
-        uf = filters.pop('UF')
-        q += "&uf_filter={}".format(uf)
-
-    for k, v in filters.items():
-        q += "&filters[{}]={}".format(k, v)
-
-    return q
+    return client.get_votes(**args)
 
 
-def build_columns(columns):
-    q = ""
-    for column in columns:
-        q += "&c[]={}".format(column)
+def get_candidates(**args):
+    if 'columns' in args and args['columns'] == '*':
+        args['columns'] = CANDIDATOS
 
-    return q
-
-
-def query(request, filters, columns):
-    if filters is not None:
-        request += build_filters(filters)
-
-    if columns is not None:
-        request += build_columns(columns)
-
-    response = urllib.urlopen(BASE_URL + request)
-    df = pd.read_csv(response, sep=",", dtype=str)
-    df.columns = map(str.upper, df.columns)
-
-    return df
+    return client.get_candidates(**args)
 
 
-def votos(ano, cargo, agregacao_regional, estado=None, numero_candidato=None, filtros=None,
-          colunas=None):
-    request = "votos?cargo={}&ano={}&agregacao_regional={}&format=csv".format(cargo, ano, agregacao_regional)
-    if filtros is None:
-        filtros = dict()
+def get_coalitions(**args):
+    if 'columns' in args and args['columns'] == '*':
+        args['columns'] = LEGENDAS
 
-    if estado is not None:
-        filtros['UF'] = estado
-
-    if numero_candidato is not None:
-        filtros['NUMERO_CANDIDATO'] = numero_candidato
-
-    return query(request, filtros, colunas)
+    return client.get_coalitions(**args)
 
 
-def candidatos(ano, cargo, filtros=None, colunas=None):
-    request = "candidatos?cargo={}&ano={}&format=csv".format(cargo, ano)
-    return query(request, filtros, colunas)
+def get_elections(**args):
+    if 'columns' in args and args['columns'] == '*':
+        reg = args['regional_aggregation']
+        pol = args['political_aggregation']
+        if pol == CANDIDATO:
+            args['columns'] = TSE_CANDIDATO[reg]
+        elif pol == PARTIDO:
+            args['columns'] = TSE_LEGENDA[reg]
+        elif pol == COLIGACAO:
+            args['columns'] = TSE_COLIGACAO[reg]
+        elif pol == DETALHE:
+            args['columns'] = TSE_DETALHE[reg]
+
+    return client.get_elections(**args)
 
 
-def legendas(ano, cargo, filtros=None, colunas=None):
-    request = "legendas?cargo={}&ano={}&format=csv".format(cargo, ano)
-    return query(request, filtros, colunas)
-
-
-def resolve_conflicts(df, prefer='_x', drop='_y'):
-    columns = df.columns.values.tolist()
-    conflicts = [c for c in columns if c.endswith(prefer)]
-    drops = [c for c in columns if c.endswith(drop)]
-    renames = dict()
-    for c in conflicts:
-        renames[c] = c.replace(prefer, '')
-
-    return df.rename(columns=renames).drop(drops, axis=1)
-
-
-def votos_x_candidatos(ano, cargo, agregacao_regional, estado=None):
-    vot = votos(ano, cargo, agregacao_regional, estado, colunas=VOTOS[agregacao_regional]) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    cand = candidatos(ano, cargo, colunas=CANDIDATOS) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    merged = vot.merge(cand, how="left", left_index=True, right_index=True).reset_index()
-
-    return resolve_conflicts(merged)
-
-
-def votos_x_legendas(ano, cargo, agregacao_regional, estado=None):
-    vot = votos(ano, cargo, agregacao_regional, estado, colunas=VOTOS[agregacao_regional]) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    leg = legendas(ano, cargo, colunas=LEGENDAS) \
-        .rename(columns={"NUMERO_PARTIDO": "NUMERO_CANDIDATO"}) \
-        .set_index(["NUMERO_CANDIDATO", "SIGLA_UE", "NUM_TURNO", "ANO_ELEICAO"])
-
-    merged = vot.merge(leg, how="left", left_index=True, right_index=True).reset_index()
-
-    return resolve_conflicts(merged)
-
-
-def candidato_x_legendas(ano, cargo):
-    leg = legendas(ano, cargo, colunas=LEGENDAS) \
-        .set_index(["NUMERO_PARTIDO", "SIGLA_UE", "ANO_ELEICAO"])
-
-    cand = candidatos(ano, cargo, colunas=CANDIDATOS) \
-        .set_index(["NUMERO_PARTIDO", "SIGLA_UE", "ANO_ELEICAO"])
-
-    merged = cand.merge(leg, how="left", left_index=True, right_index=True).reset_index()
-
-    return resolve_conflicts(merged)
-
-
-def get_elections(cargo):
-    if cargo in [1, 3, 5, 6, 7, 8]:
-        return [2014, 2010, 2006, 2002, 1998]
+def get_years(cargo):
+    if cargo in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]:
+        return [2018, 2014, 2010, 2006, 2002, 1998]
     elif cargo in [11, 13]:
         return [2016, 2012, 2008, 2004, 2000]
 
 
-class CARGO:
-    PRESIDENTE = 1
-    SENADOR = 5
-    GOVERNADOR = 3
-    VEREADOR = 13
-    PREFEITO = 11
-    DEPUTADO_FEDERAL = 6
-    DEPUTADO_ESTADUAL = 7
-    DEPUTADO_DISTRITAL = 8
+PRESIDENTE = 1
+SENADOR = 5
+GOVERNADOR = 3
+VEREADOR = 13
+PREFEITO = 11
+DEPUTADO_FEDERAL = 6
+DEPUTADO_ESTADUAL = 7
+DEPUTADO_DISTRITAL = 8
 
 
-class AGR_REGIONAL:
-    BRASIL = 0
-    UF = 2
-    MUNICIPIO = 6
-    MUNZONA = 7
-    ZONA = 8
-    MACRO = 1
-    MESO = 4
-    MICRO = 5
+BRASIL = 0
+UF = 2
+MUNICIPIO = 6
+MUNZONA = 7
+ZONA = 8
+MACRO = 1
+MESO = 4
+MICRO = 5
 
 
-class AGR_POLITICA:
-    CANDIDATO = 1
-    PARTIDO = 2
-    COLIGACAO = 3
+PARTIDO = 1
+CANDIDATO = 2
+COLIGACAO = 3
+DETALHE = 4
