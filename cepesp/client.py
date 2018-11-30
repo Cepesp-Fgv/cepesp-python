@@ -1,25 +1,67 @@
+import time
+from urllib2 import HTTPError
+
 import pandas as pd
-from urllib import urlencode
+import requests
+
+
+class QueryFailedException(Exception):
+    pass
 
 
 class CepespClient:
 
     def __init__(self, base):
         self.base = base
+        self.headers = {
+            'Accept': 'application/json'
+        }
 
-    def _request_url(self, table, args):
-        query = urlencode(self._translate(args))
-        return "{base}/api/consulta/{table}?{query}".format(base=self.base, table=table, query=query)
+    def _get_query_id(self, table, args):
+        args['table'] = table
+        url = self.base + "/api/consulta/athena/query"
+        response = requests.get(url, self._translate(args), headers=self.headers).json()
+        if 'error' in response:
+            raise QueryFailedException(response['error'])
 
-    def _request(self, table, args):
-        url = self._request_url(table, args)
-        df = pd.read_csv(url, sep=',', dtype=str)
-        df.columns = map(str.upper, df.columns)
+        return response['id']
+
+    def _get_query_status(self, query_id):
+        url = self.base + "/api/consulta/athena/status"
+        response = requests.get(url, {'id': query_id}, headers=self.headers).json()
+        if 'error' in response:
+            raise QueryFailedException(response['error'])
+
+        return response['status'], response['message']
+
+    def _get_query_result(self, query_id):
+        url = self.base + "/api/consulta/athena/result?id=" + query_id
+
+        try:
+            df = pd.read_csv(url, sep=',', dtype=str)
+            df.columns = map(str.upper, df.columns)
+        except HTTPError as e:
+            raise QueryFailedException(str(e))
 
         return df
 
+    def _request(self, table, args):
+        query_id = self._get_query_id(table, args)
+        status, message = ("RUNNING", None)
+        sleep = 1
+
+        while status in ["RUNNING", "QUEUED"]:
+            status, message = self._get_query_status(query_id)
+            time.sleep(sleep)
+            sleep *= 2
+
+        if status == "FAILED":
+            raise QueryFailedException(message)
+
+        return self._get_query_result(query_id)
+
     def _translate(self, args):
-        options = {'ano': args['year'], 'filters': []}
+        options = {'table': args['table'], 'ano': args['year'], 'filters': []}
 
         if 'position' in args:
             options['cargo'] = args['position']
