@@ -1,7 +1,7 @@
 from client import CepespClient
 from columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE
 
-client = CepespClient("http://test.cepesp.io")
+client = CepespClient("http://app.cepesp.io")
 
 
 def get_votes(**args):
