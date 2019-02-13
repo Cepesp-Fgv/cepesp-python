@@ -1,6 +1,4 @@
 import time
-from urllib2 import HTTPError
-
 import pandas as pd
 import requests
 
@@ -11,8 +9,9 @@ class QueryFailedException(Exception):
 
 class CepespClient:
 
-    def __init__(self, base):
+    def __init__(self, base, version='1.0.0'):
         self.base = base
+        self.version = version
         self.headers = {
             'Accept': 'application/json'
         }
@@ -51,9 +50,13 @@ class CepespClient:
         sleep = 1
 
         while status in ["RUNNING", "QUEUED"]:
-            status, message = self._get_query_status(query_id)
             time.sleep(sleep)
             sleep *= 2
+
+            status, message = self._get_query_status(query_id)
+
+            if status in ["RUNNING", "QUEUED"] and sleep == 2:
+                sleep = 32
 
         if status == "FAILED":
             raise QueryFailedException(message)
@@ -105,6 +108,7 @@ class CepespClient:
         options['sep'] = ','
         options['brancos'] = 1
         options['nulos'] = 1
+        options['py_ver'] = self.version
 
         return options
 

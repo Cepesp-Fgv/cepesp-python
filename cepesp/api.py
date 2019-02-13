@@ -1,31 +1,49 @@
-from client import CepespClient
-from columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE
+from cepesp.client import CepespClient
+from cepesp.columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE
 
-client = CepespClient("http://app.cepesp.io")
+
+def get_client(dev=False):
+    base = "http://cepesp.io"
+    if dev:
+        base = "http://test.cepesp.io"
+
+    return CepespClient(base)
 
 
 def get_votes(**args):
+    if 'regional_aggregation' not in args:
+        args['regional_aggregation'] = MUNICIPIO
+
     if 'columns' in args and args['columns'] == '*':
         args['columns'] = VOTOS[args['regional_aggregation']]
+    dev = args.get('dev', False)
 
-    return client.get_votes(**args)
+    return get_client(dev).get_votes(**args)
 
 
 def get_candidates(**args):
     if 'columns' in args and args['columns'] == '*':
         args['columns'] = CANDIDATOS
+    dev = args.get('dev', False)
 
-    return client.get_candidates(**args)
+    return get_client(dev).get_candidates(**args)
 
 
 def get_coalitions(**args):
     if 'columns' in args and args['columns'] == '*':
         args['columns'] = LEGENDAS
+    dev = args.get('dev', False)
 
-    return client.get_coalitions(**args)
+    return get_client(dev).get_coalitions(**args)
 
 
 def get_elections(**args):
+    if 'regional_aggregation' not in args:
+        args['regional_aggregation'] = MUNICIPIO
+
+    if 'political_aggregation' not in args:
+        args['political_aggregation'] = CANDIDATO
+
     if 'columns' in args and args['columns'] == '*':
         reg = args['regional_aggregation']
         pol = args['political_aggregation']
@@ -38,7 +56,9 @@ def get_elections(**args):
         elif pol == DETALHE:
             args['columns'] = TSE_DETALHE[reg]
 
-    return client.get_elections(**args)
+    dev = args.get('dev', False)
+
+    return get_client(dev).get_elections(**args)
 
 
 def get_years(cargo):
