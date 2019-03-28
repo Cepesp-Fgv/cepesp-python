@@ -123,3 +123,6 @@ class CepespClient:
 
     def get_elections(self, **args):
         return self._request("tse", args)
+
+    def get_assets(self, **args):
+        return self._request("bem_candidato", args)

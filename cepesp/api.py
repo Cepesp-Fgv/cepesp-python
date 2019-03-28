@@ -1,5 +1,5 @@
 from cepesp.client import CepespClient
-from cepesp.columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE
+from cepesp.columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE, BEM_CANDIDATO
 
 
 def get_client(dev=False):
@@ -59,6 +59,15 @@ def get_elections(**args):
     dev = args.get('dev', False)
 
     return get_client(dev).get_elections(**args)
+
+
+def get_assets(**args):
+    if 'columns' in args and args['columns'] == '*':
+        args['columns'] = BEM_CANDIDATO
+
+    dev = args.get('dev', False)
+
+    return get_client(dev).get_assets(**args)
 
 
 def get_years(cargo):
