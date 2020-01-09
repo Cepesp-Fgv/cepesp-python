@@ -2,10 +2,10 @@
 
 All Brasilian elections from 1998 to 2018, available on the TSE repository, are accessible by this API. Votes, Candidates, and Parties aggregated by Section, UF, Municipal, and Macro region can be easily filtered through a high-performance Athenas SQL database.
 
-CepespPython is a simple python wrapper designed to assist users to access the API to [Cepespdata](http://cepesp.io), which facilitates rapid, cleaned, organized and documented access to the [Tribunal Superior Eleitoral's](http://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais) data on elections in Brazil from 1998 to 2018.  
+CepespPython is a simple python wrapper designed to assist users in accessing the API to [Cepespdata](http://cepesp.io), which facilitates rapid, cleaned, organized and documented access to the [Tribunal Superior Eleitoral's](http://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais) data on elections in Brazil from 1998 to 2018.  
 
 ## About the CEPESPdata internal API
-This Python project comunicates with our CEPESPdata API. All the data within this application was extracted from the official TSE repository. After the extraction, the data files were post-processed and organized using HiveQL and Pandas (Python library). There is also an internal cache to minimize the response time of all pre-made requests.
+This Python project communicates with our CEPESPdata API. All the data within this application was extracted from the official TSE repository. After the extraction, the data files were post-processed and organized using HiveQL and Pandas (Python library). There is also an internal cache to minimize the response time of all pre-made requests.
 
 ### How to use
 
@@ -14,7 +14,7 @@ This Python project comunicates with our CEPESPdata API. All the data within thi
 
 ### Core Functionality
 
-After loading the cepesp-R package into your R session there are four functions which retrieve alternative slices of the processed TSE data. Each which will return a data.frame of the requested election details. The following get_* functions don't provide default values for __year__ and __position__. The four functions are:
+After loading the cepesp-R package into your R session, four functions retrieve alternative slices of the processed TSE data. Each returns a data.frame of the requested election details. The following get_* functions don't provide default values for __year__ and __position__. The four functions are:
 
 1. `get_votes` - Details about the number of votes won by each candidate in a specific election. Just specify the position and year of the electoral contest you want data for, and the regional level at which you would like votes to be aggregated. For example, should Presidential election results be returned as national totals for all of Brazil, or separately for each municipality?
 
@@ -22,7 +22,7 @@ After loading the cepesp-R package into your R session there are four functions 
 get_votes(year=2014, position="President", regional_aggregation="Municipality")
 ```
 
-2. `get_candidates` - Details about the characteristics of individual candidates competing in an election. Just specify the position and year for which you want data. It's also possible to filter the dataframe in order to return only the data concerning elected candidates using the option only_elected = TRUE (default option is only_elected = FALSE).
+2. `get_candidates` - Details about the characteristics of individual candidates competing in an election. Just specify the position and year for which you want data. It's also possible to filter the dataframe to return only the data concerning elected candidates using the option only_elected = TRUE (default option is only_elected = FALSE).
 
 ``` {.r}
 get_candidates(year=2014, position="President")
@@ -35,14 +35,11 @@ get_candidates(year=2014, position="President")
 get_coalitions(year=2014, position="President")
 ```
 
-4. `get_elections` - The most comprehensive function which merges data on election results, candidates and coalitions to enable more complex analysis. However, the merges performed here remain imperfect due to errors in the underlying TSE data and so this function should be treated as beta and used with caution. Specify the position and year for which you want data, the regional aggregation at which votes should be summed, and the political aggregation at which votes should be disaggregated - by individual candidates, parties, coalitions, or as totals for each electoral unit. The parameter only-elected is also available for this function (see #2 get_candidates).
+4. `get_elections` - The most comprehensive function which merges data on election results, candidates and coalitions to enable more sophisticated analysis. However, the merges performed here remain imperfect due to errors in the underlying TSE data, and so this function should be treated as beta and used with caution. Specify the position and year for which you want data, the regional aggregation at which votes should be summed, and the political aggregation at which votes should be disaggregated - by individual candidates, parties, coalitions, or as total for each electoral unit. The parameter only-elected is also available for this function (see #2 get_candidates).
 
 ``` {.r}
 get_elections(year=2014, position="President", regional_aggregation="Municipality", political_aggregation="Candidate")
 ```
-
-The structure of the resulting data.frame has one row for each unit of regional aggregation and for each unit of political aggregation (for example, for each candidate in each municipality or each party in each state).
-
 
 5. `get_assets` - Returns the details about assets or goods declared by the candidates in each election. The only mandatory parameter to specify is `year`. Optional parameters are `state` and `columns_list`. For example:
 
@@ -50,7 +47,7 @@ The structure of the resulting data.frame has one row for each unit of regional 
 get_assets(year = 2014, state = "AC", columns_list = list('CODIGO_CARGO','NOME_CANDIDATO','CPF_CANDIDATO','VALOR_BEM'))            
 ```
 
-6. `get_secretaries` - Returns state, state secretary name, date of entry and exit, party affiliation and other secretaries' personal data. `name` and `state` are mandatory arguments to be filled.
+6. `get_secretaries` - Returns state, state secretary name, date of entry and exit, party affiliation, and other secretaries' personal data. `name` and `state` are mandatory arguments to be filled.
 
 ``` {.r}
 get_secretaries(name = 'joao', state = 'AC')
@@ -82,7 +79,7 @@ The same parameters can also be entered in Portuguese:
 
 - political_aggregation: `Candidato`, `Partido`, `Coaligacao`, `Consolidado`.
 
-Deputies for the Federal District (DF) are included in the data base as State Deputies and can be obtained through the argument  `position="State Deputy"`.
+Deputies for the Federal District (DF) are included in the database as State Deputies and can be obtained through the argument  `position="State Deputy"`.
 
 Not all electoral contests occur in every year. Feasible requests are:
 
@@ -100,7 +97,7 @@ Not all electoral contests occur in every year. Feasible requests are:
 | 2016                |   Prefeito, Vereador    | 
 | 2018                |   Presidente, Governador, Senador, Deputado Federal, Deputado Estadual    |
 
-It is possible to download **multiple years** in a single request, once the above mentioned match of years and positions is observed.
+It is possible to download **multiple years** in a single request, once the above-mentioned match of years and positions is observed.
 
 Exemple:
 
@@ -109,7 +106,7 @@ electedmayors_2012_2008 <- get_candidates(year = "2012, 2008", position = "Prefe
 ```
 
 ### Selecting Variables
-The default setting is for the function to return all the available variables (columns). To select specific variables and limit the size of the request, you can specify a list of required columns using the `columns_list` argument. The specific columns available depend on the political and regional aggregation selected so you are advised to refer to the documentation on the available columns at https://github.com/Cepesp-Fgv/tse-dados/wiki/Colunas and to the API documentation at https://github.com/Cepesp-Fgv/cepesp-rest for further details.
+The default setting is for the function to return all the available variables (columns). To select specific variables and limit the size of the request, you can specify a list of required columns using the `columns_list` argument. The specific columns available depend on the political and regional aggregation selected, so you are advised to refer to the documentation on the available columns at https://github.com/Cepesp-Fgv/tse-dados/wiki/Colunas and to the API documentation at https://github.com/Cepesp-Fgv/cepesp-rest for further details.
 
 Example:
 ```{r}
@@ -134,7 +131,7 @@ data <- get_elections(year = 2014, position=1, regional_aggregation=2, political
 ### Cache
 Each time a request is made to the cepesp-R API, the specific dataset is constructed and downloaded to your local system. To limit processing and bandwidth utilization, the cepesp-R package includes the option to cache your requests so that they are stored locally and immediately available when that request is repeated. 
 
-Note that if you use this feature the app will create a sub-directory `/static/cache` of your working directory to store the downloaded data. You can manually delete this data to force a new download the next time the same request is made. 
+Note that if you use this feature, the app create a sub-directory `/static/cache` of your working directory to store the downloaded data. You can manually delete this data to force a new download the next time the same request is made. 
 
 ```{r, eval=FALSE}
 data <- get_votes(year = 2014, position=1, regional_aggregation="Municipality", cached=TRUE)
@@ -144,4 +141,4 @@ data <- get_votes(year = 2014, position=1, regional_aggregation="Municipality", 
 
 Remember that all the data returned by the functions above is filtered for apt candidacies (candidacies approved by TSE). Thus, you may find a slightly smaller number of observations in CepespData/FGV datasets than in the original TSE files. 
 
-The documentation on the filtering process can be found on: https://github.com/Cepesp-Fgv/tse-dados/blob/a28c237bcca0270840a39184e5a98322d3443e60/CepespData/etl/process/VotesVotsecProcess.py#L53.
+The documentation on the filtering process can be found in this link: https://github.com/Cepesp-Fgv/tse-dados/blob/a28c237bcca0270840a39184e5a98322d3443e60/CepespData/etl/process/VotesVotsecProcess.py#L53.
