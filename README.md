@@ -1,29 +1,16 @@
-# CEPESP Python
-Api python para acessar dados do TSE *_<Python 2.7>_*
+# Brasilian Elections Python
 
-[Clique para ver exemplos](examples.ipynb)
+All Brasilian elections from 1998 to 2018, available on the TSE repository, are accessible by this API. Votes, Candidates, and Parties aggregated by Section, UF, Municipal, and Macro region can be easily filtered through a high-performance Athenas SQL database.
 
-## Sobre a API interna do CEPESPdata
-Esta biblioteca se comunica com nossa API CEPESPdata. O repositório de dados foi totalmente extraído da base dados do TSE, pós-processada e organizada usando HiveQL e Pandas (Biblioteca Python). Além disso também é utilizado um cache interno à API que minimiza o tempo de resposta para consultas previamente feitas.
-
-
-# Elections Python API
-
-CepespR is a simple python wrapper designed to assist users to access the API to [Cepespdata](http://cepesp.io), which facilitates rapid, cleaned, organized and documented access to the [Tribunal Superior Eleitoral's](http://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais) data on elections in Brazil from 1998 to 2018.  
+CepespPython is a simple python wrapper designed to assist users to access the API to [Cepespdata](http://cepesp.io), which facilitates rapid, cleaned, organized and documented access to the [Tribunal Superior Eleitoral's](http://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais) data on elections in Brazil from 1998 to 2018.  
 
 ## About the CEPESPdata internal API
 This Python project comunicates with our CEPESPdata API. All the data within this application was extracted from the official TSE repository. After the extraction, the data files were post-processed and organized using HiveQL and Pandas (Python library). There is also an internal cache to minimize the response time of all pre-made requests.
 
-How### Installation
+### How to use
 
-To install cepesp-R from its [Github repository](https://github.com/Cepesp-Fgv/cepesp-r), open R/RStudio and type the following:
+[Click to see some hands-on examples](examples.ipynb)
 
-
-``` {.r}
-if (!require("devtools")) install.packages("devtools")
-devtools::install_github("Cepesp-Fgv/cepesp-r")
-library(cepespR)
-```
 
 ### Core Functionality
 
