@@ -7,9 +7,15 @@ CepespPython is a simple python wrapper designed to assist users in accessing th
 ## About the CEPESPdata internal API
 This Python project communicates with our CEPESPdata API. All the data within this application was extracted from the official TSE repository. After the extraction, the data files were post-processed and organized using HiveQL and Pandas (Python library). There is also an internal cache to minimize the response time of all pre-made requests.
 
-### How to use
+### How to install
 
-[Click to see some hands-on examples](examples.ipynb)
+The instalation is simple with píp
+
+```{python}
+
+pip install electionsBR
+
+``` 
 
 
 ### Core Functionality
