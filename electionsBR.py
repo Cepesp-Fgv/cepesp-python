@@ -2,25 +2,92 @@ from cepesp.client import AthenaClient, LambdaClient
 from cepesp.columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE, BEM_CANDIDATO
 
 
-def translate(args):
+def _parse_position(position):
+    if isinstance(position, int):
+        return position
+    else:
+        position = position.lower()
+        if position == "presidente" or position == "president":
+            return PRESIDENTE
+        elif position == "governador" or position == "governor":
+            return GOVERNADOR
+        elif position == "senador" or position == "senator":
+            return SENADOR
+        elif position == "deputado federal" or position == "federal deputy":
+            return DEP_FEDERAL
+        elif position == "deputado estadual" or position == "state deputy":
+            return DEP_ESTADUAL
+        elif position == "prefeito" or position == "mayor":
+            return PREFEITO
+        elif position == "vereador" or position == "councillor":
+            return VEREADOR
+        else:
+            raise Exception("Invalid 'position' argument provided")
+
+
+def _parse_regional_aggregation(aggregation):
+    if isinstance(aggregation, int):
+        return aggregation
+    else:
+        aggregation = aggregation.lower()
+        if aggregation == "brasil" or aggregation == "brazil":
+            return BRASIL
+        elif aggregation == "macro":
+            return MACRO
+        elif aggregation == "estado" or aggregation == "state":
+            return UF
+        elif aggregation == "meso":
+            return MESO
+        elif aggregation == "micro":
+            return MICRO
+        elif aggregation == "municipio" or aggregation == "municipality":
+            return MUNICIPIO
+        elif aggregation == "municipio-zona" or aggregation == "municipality-zone":
+            return MUNZONA
+        elif aggregation == "zona" or aggregation == "zone":
+            return ZONA
+        elif aggregation == "votação seção" or aggregation == "electoral section":
+            return VOTSEC
+        else:
+            raise Exception("Invalid 'regional_aggregation' argument provided")
+
+
+def _parse_political_aggregation(aggregation):
+    if isinstance(aggregation, int):
+        return aggregation
+    else:
+        aggregation = aggregation.lower()
+        if aggregation == "candidato" or aggregation == "candidate":
+            return CANDIDATO
+        elif aggregation == "partido" or aggregation == "party":
+            return PARTIDO
+        elif aggregation == "coaligacao" or aggregation == "coalition":
+            return COLIGACAO
+        elif aggregation == "consolidado" or aggregation == "consolidated":
+            return DETALHE
+        else:
+            raise Exception("Invalid 'political_aggregation' argument provided")
+
+
+def _parse_arguments(args):
     options = {'table': args['table'], 'ano': args['year'], 'filters': []}
 
     if 'position' in args:
-        options['cargo'] = args['position']
+        options['cargo'] = _parse_position(args['position'])
     elif 'job' in args:
-        options['cargo'] = args['job']
+        options['cargo'] = _parse_position(args['job'])
     else:
         raise Exception('Position argument is mandatory')
 
     if 'regional_aggregation' in args:
-        options['agregacao_regional'] = args['regional_aggregation']
+        options['agregacao_regional'] = _parse_regional_aggregation(args['regional_aggregation'])
     elif 'reg' in args:
-        options['agregacao_regional'] = args['reg']
+        options['agregacao_regional'] = _parse_regional_aggregation(args['reg'])
 
     if 'political_aggregation' in args:
-        options['agregacao_politica'] = args['political_aggregation']
+        options['agregacao_politica'] = _parse_political_aggregation(args['political_aggregation'])
     elif 'pol' in args:
-        options['agregacao_politica'] = args['pol']
+        options['agregacao_politica'] = _parse_political_aggregation(args['pol'])
 
     if 'columns' in args:
         if isinstance(args['columns'], list):
@@ -33,7 +100,9 @@ def translate(args):
             value = args['filters'][column]
             options['filters[' + column + ']'] = value
 
-    if 'uf' in args:
+    if 'state' in args:
+        options['uf_filter'] = args['state']
+    elif 'uf' in args:
         options['uf_filter'] = args['uf']
 
     if 'party' in args:
@@ -68,16 +137,20 @@ def translate(args):
     if 'limit' in args:
         options['length'] = args['limit']
 
+    if args.get('null_votes', False):
+        options['nulos'] = 1
+
+    if args.get('blank_votes', False):
+        options['brancos'] = 1
+
     options['sep'] = ','
-    options['brancos'] = 1
-    options['nulos'] = 1
     options['py_ver'] = '1.0.0'
 
     return options
 
 
-def get(**args):
-    options = translate(args)
+def _get(args):
+    options = _parse_arguments(args)
     dev = args.get("dev", False)
     fast = args.get("fast", False)
 
@@ -94,9 +167,10 @@ def get_votes(**args):
     args['regional_aggregation'] = args.get('regional_aggregation', MUNICIPIO)
 
     if args['columns'] == '*':
-        args['columns'] = VOTOS[args['regional_aggregation']]
+        reg = _parse_regional_aggregation(args['regional_aggregation'])
+        args['columns'] = VOTOS[reg]
 
-    return get(**args)
+    return _get(args)
 
 
 def get_candidates(**args):
@@ -106,7 +180,7 @@ def get_candidates(**args):
     if args['columns'] == '*':
         args['columns'] = CANDIDATOS
 
-    return get(**args)
+    return _get(args)
 
 
 def get_coalitions(**args):
@@ -116,7 +190,7 @@ def get_coalitions(**args):
     if args['columns'] == '*':
         args['columns'] = LEGENDAS
 
-    return get(**args)
+    return _get(args)
 
 
 def get_elections(**args):
@@ -126,8 +200,8 @@ def get_elections(**args):
     args['columns'] = args.get('columns', '*')
 
     if args['columns'] == '*':
-        reg = args['regional_aggregation']
-        pol = args['political_aggregation']
+        reg = _parse_regional_aggregation(args['regional_aggregation'])
+        pol = _parse_political_aggregation(args['political_aggregation'])
         if pol == CANDIDATO:
             args['columns'] = TSE_CANDIDATO[reg]
         elif pol == PARTIDO:
@@ -137,7 +211,7 @@ def get_elections(**args):
         elif pol == DETALHE:
             args['columns'] = TSE_DETALHE[reg]
 
-    return get(**args)
+    return _get(args)
 
 
 def get_assets(**args):
@@ -147,7 +221,7 @@ def get_assets(**args):
     if args['columns'] == '*':
         args['columns'] = BEM_CANDIDATO
 
-    return get(**args)
+    return _get(args)
 
 
 def get_secretaries(**args):
@@ -156,7 +230,7 @@ def get_secretaries(**args):
     if args['columns'] == '*':
         args['columns'] = BEM_CANDIDATO
 
-    return get(**args)
+    return _get(args)
 
 
 def get_filiates(**args):
@@ -165,7 +239,7 @@ def get_filiates(**args):
     if args['columns'] == '*':
         args['columns'] = BEM_CANDIDATO
 
-    return get(**args)
+    return _get(args)
 
 
 def get_years(cargo):

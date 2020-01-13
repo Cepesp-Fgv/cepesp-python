@@ -134,14 +134,6 @@ data <- get_elections(year = 2014, position=1, regional_aggregation=2, political
 ```
 **Important:** When requesting data with `regional_aggregation=9`, the filter `state` should not be `NULL`
 
-### Cache
-Each time a request is made to the cepesp-R API, the specific dataset is constructed and downloaded to your local system. To limit processing and bandwidth utilization, the cepesp-R package includes the option to cache your requests so that they are stored locally and immediately available when that request is repeated. 
-
-Note that if you use this feature, the app create a sub-directory `/static/cache` of your working directory to store the downloaded data. You can manually delete this data to force a new download the next time the same request is made. 
-
-```{r, eval=FALSE}
-data <- get_votes(year = 2014, position=1, regional_aggregation="Municipality", cached=TRUE)
-```
 
 ### Final Note
 
