@@ -3,3 +3,5 @@ __pycache__/
 *$py.class
 .idea/
 cache/*.gz
+build/
+dist/
