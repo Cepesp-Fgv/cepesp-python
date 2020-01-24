@@ -1,6 +1,0 @@
-def get_years(cargo):
-    if cargo in [PRESIDENTE, VICE_PRESIDENTE, GOVERNADOR, VICE_GOVERNADOR, SENADOR, DEP_FEDERAL, DEP_ESTADUAL,
-                 DEP_DISTRITAL, SUPLENTE_1, SUPLENTE_2]:
-        return [2018, 2014, 2010, 2006, 2002, 1998]
-    elif cargo in [PREFEITO, VEREADOR]:
-        return [2016, 2012, 2008, 2004, 2000]
