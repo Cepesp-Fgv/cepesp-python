@@ -134,7 +134,7 @@ data <- get_elections(year = 2014, position=1, regional_aggregation=2, political
 ```
 **Important:** When requesting data with `regional_aggregation=9`, the filter `state` should not be `NULL`
 
-> You can see **more examples** in [here](examples.ipynb)
+> You can see **more examples** [here](https://github.com/Cepesp-Fgv/cepesp-python/blob/master/examples.ipynb)
 
 ### Final Note
 
