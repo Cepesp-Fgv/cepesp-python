@@ -5,3 +5,5 @@ __pycache__/
 cache/*.gz
 build/
 dist/
+electionsBR.egg-info/
+.ipynb_checkpoints/

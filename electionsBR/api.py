@@ -1,5 +1,6 @@
-from cepesp.client import AthenaClient, LambdaClient
-from cepesp.columns import VOTOS, CANDIDATOS, LEGENDAS, TSE_CANDIDATO, TSE_LEGENDA, TSE_COLIGACAO, TSE_DETALHE, BEM_CANDIDATO
+from electionsBR.backend.client import AthenaClient, LambdaClient
+from electionsBR.columns import VOTES, CANDIDATES, PARTIES, CANDIDATE_VOTES, COALITION_VOTES, PARTY_VOTES, \
+    ELECTION_DETAILS, CANDIDATE_ASSETS, SECRETARIES, FILIATES
 
 
 def _parse_position(position):
@@ -168,7 +169,7 @@ def get_votes(**args):
 
     if args['columns'] == '*':
         reg = _parse_regional_aggregation(args['regional_aggregation'])
-        args['columns'] = VOTOS[reg]
+        args['columns'] = VOTES[reg]
 
     return _get(args)
 
@@ -178,7 +179,7 @@ def get_candidates(**args):
     args['columns'] = args.get('columns', '*')
 
     if args['columns'] == '*':
-        args['columns'] = CANDIDATOS
+        args['columns'] = CANDIDATES
 
     return _get(args)
 
@@ -188,7 +189,7 @@ def get_coalitions(**args):
     args['columns'] = args.get('columns', '*')
 
     if args['columns'] == '*':
-        args['columns'] = LEGENDAS
+        args['columns'] = PARTIES
 
     return _get(args)
 
@@ -203,13 +204,13 @@ def get_elections(**args):
         reg = _parse_regional_aggregation(args['regional_aggregation'])
         pol = _parse_political_aggregation(args['political_aggregation'])
         if pol == CANDIDATO:
-            args['columns'] = TSE_CANDIDATO[reg]
+            args['columns'] = CANDIDATE_VOTES[reg]
         elif pol == PARTIDO:
-            args['columns'] = TSE_LEGENDA[reg]
+            args['columns'] = PARTY_VOTES[reg]
         elif pol == COLIGACAO:
-            args['columns'] = TSE_COLIGACAO[reg]
+            args['columns'] = COALITION_VOTES[reg]
         elif pol == DETALHE:
-            args['columns'] = TSE_DETALHE[reg]
+            args['columns'] = ELECTION_DETAILS[reg]
 
     return _get(args)
 
@@ -219,7 +220,7 @@ def get_assets(**args):
     args['columns'] = args.get('columns', '*')
 
     if args['columns'] == '*':
-        args['columns'] = BEM_CANDIDATO
+        args['columns'] = CANDIDATE_ASSETS
 
     return _get(args)
 
@@ -228,7 +229,7 @@ def get_secretaries(**args):
     args['table'] = 'secretarios'
 
     if args['columns'] == '*':
-        args['columns'] = BEM_CANDIDATO
+        args['columns'] = SECRETARIES
 
     return _get(args)
 
@@ -237,17 +238,9 @@ def get_filiates(**args):
     args['table'] = 'filiados'
 
     if args['columns'] == '*':
-        args['columns'] = BEM_CANDIDATO
+        args['columns'] = FILIATES
 
     return _get(args)
-
-
-def get_years(cargo):
-    if cargo in [PRESIDENTE, VICE_PRESIDENTE, GOVERNADOR, VICE_GOVERNADOR, SENADOR, DEP_FEDERAL, DEP_ESTADUAL,
-                 DEP_DISTRITAL, SUPLENTE_1, SUPLENTE_2]:
-        return [2018, 2014, 2010, 2006, 2002, 1998]
-    elif cargo in [PREFEITO, VEREADOR]:
-        return [2016, 2012, 2008, 2004, 2000]
 
 
 PRESIDENTE = 1
