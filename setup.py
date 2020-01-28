@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='electionsBR',
-    version='0.2',
+    version="0.0.4",
     author="Abraao Barros",
     author_email="abraaobarros3@gmail.com",
     description="A python wrapper to fetch votes from BR elections",
@@ -14,8 +14,8 @@ setuptools.setup(
     url="https://github.com/Cepesp-Fgv/cepesp-python",
     packages=setuptools.find_packages(),
     install_requires=[
-        'pandas>=0.25.3',
-        'requests>=2.20.1'
+        'pandas',
+        'requests'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
