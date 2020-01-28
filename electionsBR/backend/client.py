@@ -1,12 +1,31 @@
 import time
-from urllib.parse import urlencode
-
+import io
 import pandas as pd
 import requests
 
 
 class QueryFailedException(Exception):
     pass
+
+
+def _request_json(url, params):
+    response = requests.get(url, params, headers={
+        'Accept': 'application/json'
+    })
+    response_data = response.json()
+
+    return response_data
+
+
+def _request_csv(url, params):
+    response = requests.get(url, params, headers={
+        'Accept': 'text/csv'
+    })
+    response_data = io.StringIO(response.content.decode('utf-8'))
+    df = pd.read_csv(response_data, sep=',', dtype=str)
+    df.columns = map(str.upper, df.columns)
+
+    return df
 
 
 class AthenaClient:
@@ -16,31 +35,28 @@ class AthenaClient:
         if dev:
             self.base = "http://test.cepesp.io"
         self.version = '1.0.0'
-        self.headers = {
-            'Accept': 'application/json'
-        }
 
     def _get_query_id(self, args):
         url = self.base + "/api/consulta/athena/query"
-        response = requests.get(url, args, headers=self.headers).json()
-        if 'error' in response:
-            raise QueryFailedException(response['error'])
+        data = _request_json(url, args)
 
-        return response['id']
+        if 'error' in data:
+            raise QueryFailedException(data['error'])
+
+        return data['id']
 
     def _get_query_status(self, query_id):
         url = self.base + "/api/consulta/athena/status"
-        response = requests.get(url, {'id': query_id, 'py_ver': self.version}, headers=self.headers).json()
-        if 'error' in response:
-            raise QueryFailedException(response['error'])
+        data = _request_json(url, {'id': query_id, 'py_ver': self.version})
 
-        return response['status'], response['message']
+        if 'error' in data:
+            raise QueryFailedException(data['error'])
+
+        return data['status'], data['message']
 
     def _get_query_result(self, query_id):
-        query_string = urlencode({'id': query_id, 'py_ver': self.version})
-        url = self.base + "/api/consulta/athena/result?" + query_string
-        df = pd.read_csv(url, sep=',', dtype=str)
-        df.columns = map(str.upper, df.columns)
+        url = self.base + "/api/consulta/athena/result"
+        df = _request_csv(url, {'id': query_id, 'py_ver': self.version})
 
         return df
 
@@ -68,13 +84,9 @@ class LambdaClient:
 
     def __init__(self):
         self.base = "https://api.cepespdata.io"
-        self.headers = {
-            'Accept': 'application/json'
-        }
 
     def get(self, args):
-        url = self.base + "/api/query?" + urlencode(args)
-        df = pd.read_csv(url, sep=',', dtype=str)
-        df.columns = map(str.upper, df.columns)
+        url = self.base + "/api/query" 
+        df = _request_csv(url, args)
 
         return df
