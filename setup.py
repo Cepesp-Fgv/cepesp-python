@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='electionsBR',
-    version='0.0.2',
+    version='0.1',
     author="Abraao Barros",
     author_email="abraaobarros3@gmail.com",
     description="A python wrapper to fetch votes from BR elections",
