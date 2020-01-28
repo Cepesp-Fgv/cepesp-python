@@ -14,8 +14,8 @@ setuptools.setup(
     url="https://github.com/Cepesp-Fgv/cepesp-python",
     packages=setuptools.find_packages(),
     install_requires=[
-        'pandas',
-        'requests'
+        'pandas>=0.25.3',
+        'requests>=2.20.1'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
