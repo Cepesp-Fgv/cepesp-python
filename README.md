@@ -20,48 +20,48 @@ pip install electionsBR
 
 ### Core Functionality
 
-After loading the cepesp-R package into your R session, four functions retrieve alternative slices of the processed TSE data. Each returns a data.frame of the requested election details. The following get_* functions don't provide default values for __year__ and __position__. The four functions are:
+Four functions retrieve alternative slices of the processed TSE data. Each returns a pandas data frame of the requested election details. The following get_* functions don't provide default values for __year__ and __position__. The four functions are:
 
 1. `get_votes` - Details about the number of votes won by each candidate in a specific election. Just specify the position and year of the electoral contest you want data for, and the regional level at which you would like votes to be aggregated. For example, should Presidential election results be returned as national totals for all of Brazil, or separately for each municipality?
 
-``` {.r}
+``` {.python}
 get_votes(year=2014, position="President", regional_aggregation="Municipality")
 ```
 
 2. `get_candidates` - Details about the characteristics of individual candidates competing in an election. Just specify the position and year for which you want data. It's also possible to filter the dataframe to return only the data concerning elected candidates using the option only_elected = TRUE (default option is only_elected = FALSE).
 
-``` {.r}
+``` {.python}
 get_candidates(year=2014, position="President")
 ```
 
 
 3. `get_coalitions` - Details about the parties that constitute each coalition that competed in each election. Just specify the position and year for which you want data.
 
-``` {.r}
+``` {.python}
 get_coalitions(year=2014, position="President")
 ```
 
 4. `get_elections` - The most comprehensive function which merges data on election results, candidates and coalitions to enable more sophisticated analysis. However, the merges performed here remain imperfect due to errors in the underlying TSE data, and so this function should be treated as beta and used with caution. Specify the position and year for which you want data, the regional aggregation at which votes should be summed, and the political aggregation at which votes should be disaggregated - by individual candidates, parties, coalitions, or as total for each electoral unit. The parameter only-elected is also available for this function (see #2 get_candidates).
 
-``` {.r}
+``` {.python}
 get_elections(year=2014, position="President", regional_aggregation="Municipality", political_aggregation="Candidate")
 ```
 
 5. `get_assets` - Returns the details about assets or goods declared by the candidates in each election. The only mandatory parameter to specify is `year`. Optional parameters are `state` and `columns_list`. For example:
 
-``` {.r}
+``` {.python}
 get_assets(year = 2014, state = "AC", columns_list = list('CODIGO_CARGO','NOME_CANDIDATO','CPF_CANDIDATO','VALOR_BEM'))            
 ```
 
 6. `get_secretaries` - Returns state, state secretary name, date of entry and exit, party affiliation, and other secretaries' personal data. `name` and `state` are mandatory arguments to be filled.
 
-``` {.r}
+``` {.python}
 get_secretaries(name = 'joao', state = 'AC')
 ```
 
 7. `get_filiates` - Returns the list of filiates by party and state (status corresponding to the last update in November 2018). `state` and/or `party` must be specified as arguments.
 
-``` {.r}
+``` {.python}
 get_filiates(state = 'SP', party = 'PT')
 ```
 
@@ -79,13 +79,11 @@ Check below the available options for each required parameter:
 
 The same parameters can also be entered in Portuguese:
 
-- position: `Vereador`, `Prefeito`, `Deputado Estadual`, `Deputado Federal`, `Senador`, `Governador`, `Presidente`.
+- position: `Vereador`, `Prefeito`, `Deputado Distrital`, `Deputado Estadual`, `Deputado Federal`, `Senador`, `Governador`, `Presidente`.
 
 - regional_aggregation: `Brasil`, `Macro`, `Estado`,`Meso`,`Micro`, `Municipio`, `Municipio-Zona`, `Zona`, `Votação Seção`.
 
 - political_aggregation: `Candidato`, `Partido`, `Coaligacao`, `Consolidado`.
-
-Deputies for the Federal District (DF) are included in the database as State Deputies and can be obtained through the argument  `position="State Deputy"`.
 
 Not all electoral contests occur in every year. Feasible requests are:
 
@@ -107,30 +105,30 @@ It is possible to download **multiple years** in a single request, once the abov
 
 Exemple:
 
-```{r}
-electedmayors_2012_2008 <- get_candidates(year = "2012, 2008", position = "Prefeito", only_elected = T)
+```{python}
+electedmayors_2012_2008 = get_candidates(year="2012, 2008", position="Prefeito", only_elected=True)
 ```
 
 ### Selecting Variables
 The default setting is for the function to return all the available variables (columns). To select specific variables and limit the size of the request, you can specify a list of required columns using the `columns_list` argument. The specific columns available depend on the political and regional aggregation selected, so you are advised to refer to the documentation on the available columns at https://github.com/Cepesp-Fgv/tse-dados/wiki/Colunas and to the API documentation at https://github.com/Cepesp-Fgv/cepesp-rest for further details.
 
 Example:
-```{r}
-columns <- list("NUMERO_CANDIDATO","UF","QTDE_VOTOS","COD_MUN_IBGE")
+```{python}
+columns = ["NUMERO_CANDIDATO","UF","QTDE_VOTOS","COD_MUN_IBGE"]
 
-data <- get_votes(year = 2014, position=1, regional_aggregation="Municipality", columns_list=columns)
+data = get_votes(year=2014, position=1, regional_aggregation="Municipality", columns_list=columns)
 ```
 
 ### Filters
 To limit the size of the data returned by the API, the request can be filtered to return data on specific units: By state (using the two-letter abbreviation, eg. "RJ"); by party (using the two-digit official party number, eg. 45), or by candidate number.
 
 For example:
-```{r}
-data <- get_elections(year = 2014, position=1, regional_aggregation=2, political_aggregation=2, state="RS") #To select Rio Grande do Sul 
+```{python}
+data = get_elections(year = 2014, position=1, regional_aggregation=2, political_aggregation=2, state="RS") #To select Rio Grande do Sul 
 
-data <- get_elections(year = 2014, position=1, regional_aggregation=2, political_aggregation=2, party=13) #To select the PT (=13)
+data = get_elections(year = 2014, position=1, regional_aggregation=2, political_aggregation=2, party=13) #To select the PT (=13)
 
-data <- get_elections(year = 2014, position=1, regional_aggregation=2, political_aggregation=2, candidate=2511) #To select candidate 2511
+data = get_elections(year = 2014, position=1, regional_aggregation=2, political_aggregation=2, candidate=2511) #To select candidate 2511
 ```
 **Important:** When requesting data with `regional_aggregation=9`, the filter `state` should not be `NULL`
 
