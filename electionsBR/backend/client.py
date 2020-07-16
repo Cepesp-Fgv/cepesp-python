@@ -18,11 +18,15 @@ def _request_json(url, params):
 
 
 def _request_csv(url, params):
-    response = requests.get(url, params, headers={
+    response = requests.get(url, params, stream=True, headers={
         'Accept': 'text/csv'
     })
-    response_data = io.StringIO(response.content.decode('utf-8'))
-    df = pd.read_csv(response_data, sep=',', dtype=str)
+    f = open('cache.csv', 'wb')
+    for chunk in response.iter_content(chunk_size=1024):
+        if chunk:  # filter out keep-alive new chunks
+            f.write(chunk)
+    f.close()
+    df = pd.read_csv('cache.csv', sep=',', dtype=str)
     df.columns = map(str.upper, df.columns)
 
     return df

@@ -18,6 +18,8 @@ def _parse_position(position):
             return DEP_FEDERAL
         elif position == "deputado estadual" or position == "state deputy":
             return DEP_ESTADUAL
+        elif position == "deputado distrital" or position == "distrital deputy":
+            return DEP_DISTRITAL
         elif position == "prefeito" or position == "mayor":
             return PREFEITO
         elif position == "vereador" or position == "councillor":
@@ -96,15 +98,18 @@ def _parse_arguments(args):
         else:
             options['c'] = args['columns']
 
-    if 'filters' in args and isinstance(args['filters'], dict):
-        for column in args['filters']:
-            value = args['filters'][column]
-            options['filters[' + column + ']'] = value
+    result = 'filters' in args
+    if not result:
+        args['filters'] = {}
 
     if 'state' in args:
-        options['uf_filter'] = args['state']
+        uf = args['state']
     elif 'uf' in args:
-        options['uf_filter'] = args['uf']
+        args['filters']['SIGLA_UF'] = args['uf']
+
+    for column in args['filters']:
+        value = args['filters'][column]
+        options['filters[' + column + ']'] = value
 
     if 'party' in args:
         if args['table'] == "filiados":
