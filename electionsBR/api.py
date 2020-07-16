@@ -107,6 +107,9 @@ def _parse_arguments(args):
     elif 'uf' in args:
         args['filters']['SIGLA_UF'] = args['uf']
 
+    if options['cargo'] in (VEREADOR, SENADOR, DEP_FEDERAL, DEP_DISTRITAL, DEP_ESTADUAL):
+        args['filters']['NUM_TURNO'] = 1
+
     for column in args['filters']:
         value = args['filters'][column]
         options['filters[' + column + ']'] = value
