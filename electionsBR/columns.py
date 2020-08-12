@@ -237,6 +237,36 @@ VOTES = {
         "DESCRICAO_CARGO",
         "NUMERO_CANDIDATO",
         "QTDE_VOTOS"
+    ],
+
+    # LOCAL VOTACAO
+    10: [
+        "ANO_ELEICAO",
+        "NUM_ZONA",
+        "CODIGO_MICRO",
+        "NOME_MICRO",
+        "CODIGO_MESO",
+        "NOME_MESO",
+        "UF",
+        "NOME_UF",
+        "CODIGO_MACRO",
+        "NOME_MACRO",
+        "COD_MUN_TSE",
+        "COD_MUN_IBGE",
+        "NOME_MUNICIPIO",
+        "NUM_TURNO",
+        "DESCRICAO_ELEICAO",
+        "SIGLA_UE",
+        "CODIGO_CARGO",
+        "DESCRICAO_CARGO",
+        "NUMERO_CANDIDATO",
+        "NOME_LOCAL_VOTACAO",
+        "NUM_LOCAL_VOTACAO",
+        "DESCRICAO_ENDERECO",
+        "DESCRICAO_BAIRRO",
+        "NUM_CEP",
+        "NOME_LOCALIDADE",
+        "QTDE_VOTOS"
     ]
 
 }

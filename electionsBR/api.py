@@ -47,6 +47,8 @@ def _parse_regional_aggregation(aggregation):
             return MUNZONA
         elif aggregation == "zona" or aggregation == "zone":
             return ZONA
+        elif aggregation == "local" or aggregation == "location":
+            return LOCVOT
         elif aggregation == "votação seção" or aggregation == "electoral section":
             return VOTSEC
         else:
@@ -171,6 +173,8 @@ def get_votes(**args):
         reg = _parse_regional_aggregation(args['regional_aggregation'])
         args['columns'] = VOTES[reg]
 
+    print(args)
+
     return _get(args)
 
 
@@ -265,6 +269,7 @@ MACRO = 1
 MESO = 4
 MICRO = 5
 VOTSEC = 9
+LOCVOT = 10
 
 PARTIDO = 1
 CANDIDATO = 2

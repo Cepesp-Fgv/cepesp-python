@@ -31,9 +31,9 @@ def _request_csv(url, params):
 class AthenaClient:
 
     def __init__(self, dev):
-        self.base = "http://cepesp.io"
+        self.base = "https://cepespdata.io"
         if dev:
-            self.base = "http://test.cepesp.io"
+            self.base = "https://test.cepesp.io"
         self.version = '1.0.0'
 
     def _get_query_id(self, args):
