@@ -1,8 +1,8 @@
-# Brasilian Elections Python
+# Brazilian Elections Python
 
-All Brasilian elections from 1998 to 2018, available on the TSE repository, are accessible by this API. Votes, Candidates, and Parties aggregated by Section, UF, Municipal, and Macro region can be easily filtered through a high-performance Athenas SQL database.
+All Brazilian elections from 1998 to 2018, available on the TSE repository, are accessible by this API. Votes, Candidates, and Parties aggregated by Section, UF, Municipal, and Macro region can be easily filtered through a high-performance Athenas SQL database.
 
-CepespPython is a simple python wrapper designed to assist users in accessing the API to [Cepespdata](http://cepesp.io), which facilitates rapid, cleaned, organized and documented access to the [Tribunal Superior Eleitoral's](http://www.tse.jus.br/eleicoes/estatisticas/repositorio-de-dados-eleitorais) data on elections in Brazil from 1998 to 2018.  
+CepespPython is a simple python wrapper designed to assist users in accessing the API to [Cepespdata](http://cepesp.io), which facilitates rapid, cleaned, organized and documented access to the [Tribunal Superior Eleitoral's](https://dadosabertos.tse.jus.br/) data on elections in Brazil from 1998 to 2018.  
 
 ## About the CEPESPdata internal API
 This Python project communicates with our CEPESPdata API. All the data within this application was extracted from the official TSE repository. After the extraction, the data files were post-processed and organized using HiveQL and Pandas (Python library). There is also an internal cache to minimize the response time of all pre-made requests.
@@ -20,7 +20,7 @@ pip install electionsBR
 
 ### Core Functionality
 
-After loading the cepesp-R package into your R session, four functions retrieve alternative slices of the processed TSE data. Each returns a data.frame of the requested election details. The following get_* functions don't provide default values for __year__ and __position__. The four functions are:
+After loading the cepesp-python package into your Python session, four functions retrieve alternative slices of the processed TSE data. Each returns a data.frame of the requested election details. The following get_* functions don't provide default values for __year__ and __position__. The four functions are:
 
 1. `get_votes` - Details about the number of votes won by each candidate in a specific election. Just specify the position and year of the electoral contest you want data for, and the regional level at which you would like votes to be aggregated. For example, should Presidential election results be returned as national totals for all of Brazil, or separately for each municipality?
 
@@ -57,12 +57,6 @@ get_assets(year = 2014, state = "AC", columns_list = list('CODIGO_CARGO','NOME_C
 
 ``` {.r}
 get_secretaries(name = 'joao', state = 'AC')
-```
-
-7. `get_filiates` - Returns the list of filiates by party and state (status corresponding to the last update in November 2018). `state` and/or `party` must be specified as arguments.
-
-``` {.r}
-get_filiates(state = 'SP', party = 'PT')
 ```
 
 ### Parameters

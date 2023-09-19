@@ -1,6 +1,6 @@
 from electionsBR.backend.client import AthenaClient, LambdaClient
 from electionsBR.columns import VOTES, CANDIDATES, PARTIES, CANDIDATE_VOTES, COALITION_VOTES, PARTY_VOTES, \
-    ELECTION_DETAILS, CANDIDATE_ASSETS, SECRETARIES, FILIATES
+    ELECTION_DETAILS, CANDIDATE_ASSETS, SECRETARIES
 
 
 def _parse_position(position):
@@ -232,15 +232,6 @@ def get_secretaries(**args):
 
     if args['columns'] == '*':
         args['columns'] = SECRETARIES
-
-    return _get(args)
-
-
-def get_filiates(**args):
-    args['table'] = 'filiados'
-
-    if args['columns'] == '*':
-        args['columns'] = FILIATES
 
     return _get(args)
 
